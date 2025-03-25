@@ -1,14 +1,14 @@
-import websocket
-from src.utils import parse_config
-from utils.finnhub_info import load_client, validate_ticker
+import json
 import ssl
+import websocket
+import os
+
+from utils.finnhub_info import load_client, validate_ticker
 
 class FinnhubWebsocket:
     def __init__(self):
-        config = parse_config.get('/Users/gosakrupa/PycharmProjects/PythonProject/config/config.yaml')
-
-        self.token = config["api-key"]
-        self.ticker = config["ticker"]
+        self.token = os.environ["api_key"]
+        self.ticker = os.environ["ticker"]
         self.finnhub_client = load_client(self.token)
 
         websocket.enableTrace(True)
@@ -21,6 +21,7 @@ class FinnhubWebsocket:
 
 
     def on_message(self, ws, message):
+        message = json.loads(message)
         print(message)
 
     def on_error(self, ws, error):
@@ -32,6 +33,9 @@ class FinnhubWebsocket:
     def on_open(self, ws):
         if validate_ticker(self.finnhub_client, self.ticker):
             self.ws.send(f'{{"type": "subscribe", "symbol": "{self.ticker}"}}')
+            print(f'Subscription for {self.ticker} succeeded')
+        else:
+            print(f'Subscription for {self.ticker} failed - ticker not found')
 
 if __name__ == '__main__':
     FinnhubWebsocket()
