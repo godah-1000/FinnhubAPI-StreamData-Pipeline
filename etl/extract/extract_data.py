@@ -21,7 +21,7 @@ class FinnhubWebsocket:
 
 
     def on_message(self, ws, message):
-        print(dict(message))
+        print(message)
 
     def on_error(self, ws, error):
         print(error)
